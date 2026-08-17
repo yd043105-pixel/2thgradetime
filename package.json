@@ -4,6 +4,8 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "python -m http.server 4173"
+    "start": "python -m http.server 4173",
+    "test": "node --test"
   }
 }
+

@@ -73,9 +73,10 @@ h1 em { color: var(--accent); font-style: normal; }
 .student-heading p:last-child { margin-bottom: 0; color: var(--muted); font-size: 12px; }
 .assignment-block { padding-left: 24px; border-left: 1px solid var(--line); }
 .assignment-list { display: flex; flex-wrap: wrap; gap: 7px; }
-.assignment-chip { display: inline-flex; align-items: baseline; gap: 7px; padding: 9px 10px; border-radius: 9px; background: var(--accent-soft); color: var(--ink); }
+.assignment-chip { display: grid; gap: 4px; padding: 9px 10px; border-radius: 9px; background: var(--accent-soft); color: var(--ink); }
 .assignment-chip strong { font-size: 12px; }
 .assignment-chip small { color: var(--accent); font-size: 10px; font-weight: 800; }
+.assignment-chip em { color: var(--ink-soft); font-size: 10px; font-style: normal; line-height: 1.35; }
 .assignment-empty { color: var(--muted); font-size: 12px; }
 
 .schedule-shell { margin-top: 18px; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }

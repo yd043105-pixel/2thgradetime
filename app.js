@@ -1,4 +1,5 @@
 import { timetableData } from './src/data.js';
+import { formatOperatingClass } from './src/operating-class-label.js';
 
 const $ = (selector) => document.querySelector(selector);
 const data = timetableData;
@@ -31,6 +32,15 @@ function showToast(message) {
   toast.classList.add('is-visible');
   clearTimeout(showToast.timer);
   showToast.timer = setTimeout(() => toast.classList.remove('is-visible'), 2800);
+}
+
+function getOperatingClass(subject, group) {
+  const groupCode = String(group || '').toLowerCase();
+  return (data.operatingClasses[subject] || []).find((code) => code.startsWith(`2${groupCode}`)) || '';
+}
+
+function getOperatingClassLabel(subject, group) {
+  return formatOperatingClass(getOperatingClass(subject, group)) || '-';
 }
 
 function getMatches(value) {
@@ -84,6 +94,7 @@ function renderAssignments(student) {
     <span class="assignment-chip">
       <strong>${escapeHtml(assignment.subject)}</strong>
       <small>${escapeHtml(assignment.group)}구획 / ${escapeHtml(assignment.division)}분반</small>
+      <em>운영 반 ${escapeHtml(getOperatingClassLabel(assignment.subject, assignment.group))}</em>
     </span>
   `).join('');
 }
@@ -98,7 +109,7 @@ function renderCell(slot) {
         <span class="cell-type">${item.kind === 'elective' ? '선택과목' : item.kind === 'special' ? '학교 일정' : item.kind === 'etrack' ? 'e 시간표' : '수업'}</span>
         <strong>${escapeHtml(item.title)}</strong>
         ${item.teacher ? `<small>${escapeHtml(item.teacher)}</small>` : ''}
-        ${item.kind === 'elective' ? `<em>${escapeHtml(item.group)}구획 / ${escapeHtml(item.division)}분반</em>` : ''}
+        ${item.kind === 'elective' ? `<em>운영 반 ${escapeHtml(getOperatingClassLabel(item.title, item.group))}</em>` : ''}
       </div>
     `).join('')}
   </div>`;
@@ -221,7 +232,7 @@ function downloadScheduleImage() {
   context.fillText('개인 시간표', 72, 74);
   context.fillStyle = '#667085';
   context.font = '500 16px Arial, "Noto Sans KR", sans-serif';
-  context.fillText('2026학년도 2학기 / 시간표 기준일 2026. 8. 12.', 72, 104);
+  context.fillText('2026학년도 2학기 / 시간표 기준일 2026. 8. 18.', 72, 104);
   context.fillStyle = '#14213d';
   context.font = '700 30px Arial, "Noto Sans KR", sans-serif';
   context.fillText(student.name, 72, 165);

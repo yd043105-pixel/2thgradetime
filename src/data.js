@@ -1,4 +1,4 @@
-export const timetableData = {
+const baseTimetableData = {
   "updatedAt": "2026-08-18",
   "days": [
     "월",
@@ -36472,8 +36472,8 @@ export const timetableData = {
           "division": "1"
         },
         {
-          "subject": "지구과학",
-          "courseCode": "T162897",
+          "subject": "법과 사회",
+          "courseCode": "T162895",
           "group": "C",
           "division": "1"
         }
@@ -36496,8 +36496,8 @@ export const timetableData = {
           "period": 2,
           "items": [
             {
-              "title": "지구과학",
-              "teacher": "김회용",
+              "title": "법과 사회",
+              "teacher": "배성희",
               "code": "2c",
               "kind": "elective",
               "group": "C",
@@ -46986,7 +46986,7 @@ export const timetableData = {
     },
     {
       "id": "4980M1685568",
-      "name": "정유진",
+      "name": "정지안",
       "grade": 2,
       "classNo": "5",
       "studentNo": "18",
@@ -58481,4 +58481,25 @@ export const timetableData = {
       ]
     }
   ]
+};
+
+const updatedStudents = baseTimetableData.students
+  .filter((student) => student.name !== '정주원')
+  .map((student) => {
+    if (student.name !== '이다경') return student;
+
+    return {
+      ...student,
+      schedule: student.schedule.map((slot) => ({
+        ...slot,
+        items: slot.items.map((item) => item.title === '지구과학' && item.group === 'C'
+          ? { ...item, title: '법과 사회', teacher: '배성희' }
+          : item),
+      })),
+    };
+  });
+
+export const timetableData = {
+  ...baseTimetableData,
+  students: updatedStudents,
 };

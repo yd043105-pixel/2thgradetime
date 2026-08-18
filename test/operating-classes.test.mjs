@@ -33,3 +33,30 @@ test('운영 반 코드를 학년과 반 표기로 바꾼다', async () => {
   }
   assert.equal(formatOperatingClass('2c1'), '2학년 1반');
 });
+
+test('학생별 최신 선택과목과 명단 변경을 반영한다', () => {
+  const idaKyung = timetableData.students.find((student) => student.name === '이다경');
+  assert.ok(idaKyung);
+  assert.deepEqual(
+    idaKyung.assignments.find((assignment) => assignment.subject === '법과 사회'),
+    {
+      subject: '법과 사회',
+      courseCode: 'T162895',
+      group: 'C',
+      division: '1',
+    },
+  );
+  assert.equal(idaKyung.assignments.some((assignment) => assignment.subject === '지구과학'), false);
+  assert.equal(
+    idaKyung.schedule.flatMap((slot) => slot.items).some((item) => item.title === '지구과학'),
+    false,
+  );
+  assert.equal(
+    idaKyung.schedule.flatMap((slot) => slot.items).filter((item) => item.title === '법과 사회').length,
+    3,
+  );
+  assert.equal(timetableData.students.length, 121);
+  assert.equal(timetableData.students.some((student) => student.name === '정주원'), false);
+  assert.equal(timetableData.students.some((student) => student.name === '정유진'), false);
+  assert.equal(timetableData.students.some((student) => student.name === '정지안'), true);
+});

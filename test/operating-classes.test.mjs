@@ -60,3 +60,62 @@ test('학생별 최신 선택과목과 명단 변경을 반영한다', () => {
   assert.equal(timetableData.students.some((student) => student.name === '정유진'), false);
   assert.equal(timetableData.students.some((student) => student.name === '정지안'), true);
 });
+
+test('학생별 언어생활과 한자·일본문화 수강명단을 반영한다', async () => {
+  let etrackEnrollments;
+  try {
+    ({ etrackEnrollments } = await import('../src/etrack-enrollments.js'));
+  } catch {
+    assert.fail('학생별 e분반 수강명단 매핑을 찾지 못했습니다.');
+  }
+
+  assert.equal(Object.keys(etrackEnrollments).length, 121);
+  assert.deepEqual(etrackEnrollments['김민지'], {
+    subject: '언어생활과 한자',
+    code: '2e1',
+    teacher: '구미경',
+  });
+  assert.deepEqual(etrackEnrollments['김예은'], {
+    subject: '언어생활과 한자',
+    code: '2e2',
+    teacher: '구미경',
+  });
+  assert.deepEqual(etrackEnrollments['강다현'], {
+    subject: '일본문화',
+    code: '2e4',
+    teacher: '오태훈',
+  });
+  assert.deepEqual(etrackEnrollments['정지안'], {
+    subject: '일본문화',
+    code: '2e5',
+    teacher: '오태훈',
+  });
+  assert.equal(etrackEnrollments['정주원'], undefined);
+
+  const eTrackItemsFor = (name) => timetableData.students
+    .find((student) => student.name === name)
+    .schedule
+    .flatMap((slot) => slot.items)
+    .filter((item) => item.kind === 'etrack');
+  const uniqueETrackDetailsFor = (name) => [
+    ...new Set(eTrackItemsFor(name).map((item) => `${item.title}|${item.code}|${item.teacher}`)),
+  ];
+
+  assert.deepEqual(uniqueETrackDetailsFor('김민지'), ['언어생활과 한자|2e1|구미경']);
+  assert.deepEqual(uniqueETrackDetailsFor('김예은'), ['언어생활과 한자|2e2|구미경']);
+  assert.deepEqual(uniqueETrackDetailsFor('강다현'), ['일본문화|2e4|오태훈']);
+  assert.deepEqual(uniqueETrackDetailsFor('정지안'), ['일본문화|2e5|오태훈']);
+
+  const eTrackCounts = timetableData.students
+    .flatMap((student) => student.schedule.flatMap((slot) => slot.items))
+    .filter((item) => item.kind === 'etrack')
+    .reduce((counts, item) => ({ ...counts, [item.code]: (counts[item.code] ?? 0) + 1 }), {});
+  assert.deepEqual(eTrackCounts, {
+    '2e1': 54,
+    '2e2': 66,
+    '2e3': 57,
+    '2e4': 69,
+    '2e5': 54,
+    '2e6': 63,
+  });
+});

@@ -1,3 +1,5 @@
+import { etrackEnrollments } from './etrack-enrollments.js';
+
 const baseTimetableData = {
   "updatedAt": "2026-08-18",
   "days": [
@@ -58486,15 +58488,26 @@ const baseTimetableData = {
 const updatedStudents = baseTimetableData.students
   .filter((student) => student.name !== '정주원')
   .map((student) => {
-    if (student.name !== '이다경') return student;
+    const enrollment = etrackEnrollments[student.name];
 
     return {
       ...student,
       schedule: student.schedule.map((slot) => ({
         ...slot,
-        items: slot.items.map((item) => item.title === '지구과학' && item.group === 'C'
-          ? { ...item, title: '법과 사회', teacher: '배성희' }
-          : item),
+        items: slot.items.map((item) => {
+          const nextItem = item.kind === 'etrack' && enrollment
+            ? {
+              ...item,
+              title: enrollment.subject,
+              code: enrollment.code,
+              teacher: enrollment.teacher,
+            }
+            : item;
+
+          return student.name === '이다경' && nextItem.title === '지구과학' && nextItem.group === 'C'
+            ? { ...nextItem, title: '법과 사회', teacher: '배성희' }
+            : nextItem;
+        }),
       })),
     };
   });

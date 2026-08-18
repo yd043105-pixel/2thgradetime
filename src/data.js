@@ -58489,12 +58489,26 @@ const updatedStudents = baseTimetableData.students
   .filter((student) => student.name !== '정주원')
   .map((student) => {
     const enrollment = etrackEnrollments[student.name];
+    const reassignedGroups = student.name === '유은서'
+      ? {
+        '물질과 에너지': 'A',
+        '세포와 물질대사': 'B',
+        '지구과학': 'C',
+        '역학과 에너지': 'D',
+      }
+      : null;
 
     return {
       ...student,
+      assignments: reassignedGroups
+        ? student.assignments.map((assignment) => reassignedGroups[assignment.subject]
+          ? { ...assignment, group: reassignedGroups[assignment.subject] }
+          : assignment)
+        : student.assignments,
       schedule: student.schedule.map((slot) => ({
         ...slot,
         items: slot.items.map((item) => {
+          const reassignedGroup = reassignedGroups?.[item.title];
           const nextItem = item.kind === 'etrack' && enrollment
             ? {
               ...item,
@@ -58502,6 +58516,12 @@ const updatedStudents = baseTimetableData.students
               code: enrollment.code,
               teacher: enrollment.teacher,
             }
+            : item.kind === 'elective' && reassignedGroup
+              ? {
+                ...item,
+                code: `2${reassignedGroup.toLowerCase()}`,
+                group: reassignedGroup,
+              }
             : item;
 
           return student.name === '이다경' && nextItem.title === '지구과학' && nextItem.group === 'C'

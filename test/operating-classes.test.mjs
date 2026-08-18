@@ -61,6 +61,32 @@ test('학생별 최신 선택과목과 명단 변경을 반영한다', () => {
   assert.equal(timetableData.students.some((student) => student.name === '정지안'), true);
 });
 
+test('유은서의 선택과목 재배정과 운영 반을 반영한다', () => {
+  const student = timetableData.students.find((candidate) => candidate.name === '유은서');
+  assert.ok(student);
+
+  const expectedGroups = {
+    '물질과 에너지': 'A',
+    '세포와 물질대사': 'B',
+    '지구과학': 'C',
+    '역학과 에너지': 'D',
+  };
+  const assignmentGroups = Object.fromEntries(
+    student.assignments.map((assignment) => [assignment.subject, assignment.group]),
+  );
+  assert.deepEqual(
+    Object.fromEntries(Object.keys(expectedGroups).map((subject) => [subject, assignmentGroups[subject]])),
+    expectedGroups,
+  );
+
+  const scheduleItems = student.schedule.flatMap((slot) => slot.items);
+  for (const [subject, group] of Object.entries(expectedGroups)) {
+    const items = scheduleItems.filter((item) => item.kind === 'elective' && item.title === subject);
+    assert.equal(items.length, 3);
+    assert.equal(items.every((item) => item.group === group && item.code === `2${group.toLowerCase()}`), true);
+  }
+});
+
 test('학생별 언어생활과 한자·일본문화 수강명단을 반영한다', async () => {
   let etrackEnrollments;
   try {

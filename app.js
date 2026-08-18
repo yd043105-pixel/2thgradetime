@@ -34,13 +34,17 @@ function showToast(message) {
   showToast.timer = setTimeout(() => toast.classList.remove('is-visible'), 2800);
 }
 
-function getOperatingClass(subject, group) {
+function getOperatingClass(subject, group, code) {
   const groupCode = String(group || '').toLowerCase();
-  return (data.operatingClasses[subject] || []).find((code) => code.startsWith(`2${groupCode}`)) || '';
+  const timetableCode = String(code || '').toLowerCase();
+  const operatingClasses = data.operatingClasses[subject] || [];
+  return operatingClasses.find((operatingCode) => operatingCode.toLowerCase() === timetableCode)
+    || operatingClasses.find((operatingCode) => operatingCode.toLowerCase().startsWith(`2${groupCode}`))
+    || '';
 }
 
-function getOperatingClassLabel(subject, group) {
-  return formatOperatingClass(getOperatingClass(subject, group)) || '-';
+function getOperatingClassLabel(subject, group, code) {
+  return formatOperatingClass(getOperatingClass(subject, group, code)) || '-';
 }
 
 function getMatches(value) {
@@ -109,7 +113,7 @@ function renderCell(slot) {
         <span class="cell-type">${item.kind === 'elective' ? '선택과목' : item.kind === 'special' ? '학교 일정' : item.kind === 'etrack' ? 'e 시간표' : '수업'}</span>
         <strong>${escapeHtml(item.title)}</strong>
         ${item.teacher ? `<small>${escapeHtml(item.teacher)}</small>` : ''}
-        ${item.kind === 'elective' ? `<em>운영 반 ${escapeHtml(getOperatingClassLabel(item.title, item.group))}</em>` : ''}
+        ${item.kind === 'elective' || item.kind === 'etrack' ? `<em>운영 반 ${escapeHtml(getOperatingClassLabel(item.title, item.group, item.code))}</em>` : ''}
       </div>
     `).join('')}
   </div>`;

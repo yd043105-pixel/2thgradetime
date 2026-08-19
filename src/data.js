@@ -58485,8 +58485,42 @@ const baseTimetableData = {
   ]
 };
 
-const updatedStudents = baseTimetableData.students
-  .filter((student) => student.name !== '정주원')
+const kimJwahyeonTemplate = baseTimetableData.students.find((student) => student.name === '김동우');
+const kimJwahyeonChoiceByGroup = {
+  A: { title: '법과 사회', teacher: '배성희', code: '2a' },
+  B: { title: '지구과학', teacher: '김회용', code: '2b' },
+  C: { title: '사회와 문화', teacher: '백혜선', code: '2c' },
+  D: { title: '세계사', teacher: '정수진', code: '2d' },
+};
+const kimJwahyeonStudent = {
+  ...kimJwahyeonTemplate,
+  id: 'manual-kim-jwahyeon',
+  name: '김좌현',
+  grade: 2,
+  classNo: '1',
+  studentNo: '22',
+  assignments: [
+    { subject: '법과 사회', courseCode: 'T162895', group: 'A', division: '1' },
+    { subject: '지구과학', courseCode: 'T162897', group: 'B', division: '1' },
+    { subject: '사회와 문화', courseCode: 'T162896', group: 'C', division: '1' },
+    { subject: '세계사', courseCode: 'T162893', group: 'D', division: '1' },
+  ],
+  schedule: kimJwahyeonTemplate.schedule.map((slot) => ({
+    ...slot,
+    items: slot.items.map((item) => {
+      if (item.kind === 'etrack') {
+        return { ...item, title: '일본문화', teacher: '오태훈', code: '2e4' };
+      }
+      const choice = item.kind === 'elective' ? kimJwahyeonChoiceByGroup[item.group] : null;
+      return choice ? { ...item, ...choice } : item;
+    }),
+  })),
+};
+
+const updatedStudents = [
+  ...baseTimetableData.students.filter((student) => student.name !== '정주원'),
+  kimJwahyeonStudent,
+]
   .map((student) => {
     const enrollment = etrackEnrollments[student.name];
     const reassignedGroups = student.name === '유은서'
